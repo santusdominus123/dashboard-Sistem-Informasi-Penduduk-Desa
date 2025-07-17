@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIPENDESA - Sistem Informasi Penduduk Desa</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3f4f6;
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-menu-item {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 3px solid #60a5fa;
+        }
+        
+        .sidebar-menu-item.active {
+            background-color: rgba(59, 130, 246, 0.3);
+            border-left: 3px solid #60a5fa;
+        }
+        
+        .card {
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .gradient-blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        }
+        
+        .gradient-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .gradient-purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        }
+        
+        .gradient-orange {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            background: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .chart-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            color: #6b7280;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+        }
+        
+        .table-header {
+            background-color: #f3f4f6;
+            position: sticky;
+            top: 0;
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            min-width: 160px;
+            z-index: 1;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+        
+        /* Custom badge styles */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .badge-blue {
+            color: #1e40af;
+            background-color: #dbeafe;
+        }
+        
+        .badge-green {
+            color: #065f46;
+            background-color: #d1fae5;
+        }
+        
+        .badge-purple {
+            color: #5b21b6;
+            background-color: #ede9fe;
+        }
+        
+        .badge-orange {
+            color: #9a3412;
+            background-color: #ffedd5;
+        }
+        
+        /* Bar chart placeholder */
+        .bar-chart {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 1rem;
+        }
+        
+        .bar {
+            width: 12%;
+            background: linear-gradient(to top, #3b82f6, #60a5fa);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .bar:hover {
+            filter: brightness(1.1);
+        }
+        
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #6b7280;
+            white-space: nowrap;
+        }
+        
+        /* Pie chart placeholder */
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #8b5cf6 0% 25%,
+                #3b82f6 25% 40%,
+                #10b981 40% 55%,
+                #f59e0b 55% 70%,
+                #ef4444 70% 85%,
+                #6b7280 85% 100%
+            );
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .pie-center {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .pie-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0.25rem 0.5rem;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 0.5rem;
+        }
+        
+        .scroll-shadow {
+            background:
+                linear-gradient(#f3f4f6 33%, rgba(243, 244, 246, 0)),
+                linear-gradient(rgba(243, 244, 246, 0), #f3f4f6 66%) 0 100%,
+                radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0)),
+                radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0)) 0 100%;
+            background-repeat: no-repeat;
+            background-size: 100% 20px, 100% 20px, 100% 10px, 100% 10px;
+            background-attachment: local, local, scroll, scroll;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 flex-shrink-0 text-white">
+            <div class="p-4 border-b border-blue-700 flex items-center">
+                <div class="w-10 h-10 flex items-center justify-center rounded-lg bg-white text-blue-800 font-bold text-xl mr-3">S</div>
+                <div>
+                    <h1 class="text-xl font-bold">SIPENDESA</h1>
+                    <p class="text-xs text-blue-300">Sistem Informasi Penduduk Desa</p>
+                </div>
+            </div>
+            
+            <nav class="mt-6">
+                <div class="px-4 mb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">
+                    Menu Utama
+                </div>
+                <ul>
+                    <li>
+                        <a href="#" class="sidebar-menu-item active flex items-center px-4 py-3">
+                            <i class="fas fa-chart-bar w-5 h-5 mr-3"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-menu-item flex items-center px-4 py-3">
+                            <i class="fas fa-users w-5 h-5 mr-3"></i>
+                            <span>Data Penduduk</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-menu-item flex items-center px-4 py-3">
+                            <i class="fas fa-baby w-5 h-5 mr-3"></i>
+                            <span>Kelahiran</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-menu-item flex items-center px-4 py-3">
+                            <i class="fas fa-file-alt w-5 h-5 mr-3"></i>
+                            <span>Laporan</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-menu-item flex items-center px-4 py-3">
+                            <i class="fas fa-sync-alt w-5 h-5 mr-3"></i>
+                            <span>Sinkronisasi Data</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="px-4 mt-6 mb-2 text-xs font-semibold text-blue-300 uppercase tracking-wider">
+                    Pengaturan
+                </div>
+                <ul>
+                    <li>
+                        <a href="#" class="sidebar-menu-item flex items-center px-4 py-3">
+                            <i class="fas fa-cog w-5 h-5 mr-3"></i>
+                            <span>Pengaturan Sistem</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="sidebar-menu-item flex items-center px-4 py-3">
+                            <i class="fas fa-user-shield w-5 h-5 mr-3"></i>
+                            <span>Hak Akses</span>
+                        </a>
+                    </li>
+                    <li class="mt-6">
+                        <a href="#" class="sidebar-menu-item flex items-center px-4 py-3 text-blue-300 hover:text-white">
+                            <i class="fas fa-sign-out-alt w-5 h-5 mr-3"></i>
+                            <span>Keluar</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white shadow">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-800">Kecamatan Contoh</h2>
+                        <p class="text-sm text-gray-500">Kabupaten Sampel, Provinsi Demo</p>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="relative mr-3">
+                            <button class="flex items-center text-gray-500 focus:outline-none">
+                                <i class="fas fa-bell text-gray-400"></i>
+                                <span class="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+                            </button>
+                        </div>
+                        <div class="dropdown">
+                            <button class="flex items-center focus:outline-none">
+                                <div class="mr-3 text-right">
+                                    <p class="font-medium text-gray-800">Admin Kecamatan</p>
+                                    <p class="text-sm text-gray-500">admin@kecamatan.go.id</p>
+                                </div>
+                                <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+                                    A
+                                </div>
+                                <i class="fas fa-chevron-down ml-2 text-gray-400"></i>
+                            </button>
+                            <div class="dropdown-content">
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-user mr-2 text-gray-500"></i> Profil
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-cog mr-2 text-gray-500"></i> Pengaturan
+                                </a>
+                                <div class="border-t border-gray-200"></div>
+                                <a href="#" class="block px-4 py-2 text-red-600 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i> Keluar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Breadcrumb -->
+                <div class="px-6 py-2 bg-gray-50 border-t border-b border-gray-200">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <a href="#" class="hover:text-blue-600">Home</a>
+                        <i class="fas fa-chevron-right mx-2 text-gray-400 text-xs"></i>
+                        <span class="text-gray-800">Dashboard</span>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Dashboard Content -->
+            <main class="flex-1 overflow-y-auto scroll-shadow px-6 py-6">
+                <!-- Dashboard Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Dashboard Analisis Penduduk</h1>
+                    <div class="flex space-x-3">
+                        <div class="flex items-center rounded-lg border border-gray-300 bg-white p-2">
+                            <i class="fas fa-filter text-gray-500 mr-2"></i>
+                            <select class="bg-transparent focus:outline-none text-sm text-gray-700">
+                                <option>Semua Desa</option>
+                                <option>Desa Sukamaju</option>
+                                <option>Desa Harapan</option>
+                                <option>Desa Makmur</option>
+                                <option>Desa Sejahtera</option>
+                                <option>Desa Damai</option>
+                                <option>Desa Sentosa</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center rounded-lg border border-gray-300 bg-white p-2">
+                            <i class="fas fa-calendar text-gray-500 mr-2"></i>
+                            <select class="bg-transparent focus:outline-none text-sm text-gray-700">
+                                <option>Hari Ini</option>
+                                <option>Minggu Ini</option>
+                                <option selected>Bulan Ini</option>
+                                <option>Tahun Ini</option>
+                            </select>
+                        </div>
+                        <button class="flex items-center text-blue-600 hover:text-blue-800 px-2">
+                            <i class="fas fa-sync-alt mr-1"></i>
+                            <span class="text-sm">Refresh</span>
+                        </button>
+                        <button class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-download mr-2"></i>
+                            <span>Export Laporan</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg">
+                        <div class="px-6 py-5">
+                            <div class="flex items-center">
+                                <div class="flex-1">
+                                    <p class="text-gray-500 text-sm font-medium mb-1">Total Penduduk</p>
+                                    <h3 class="text-3xl font-bold text-gray-800">25,567</h3>
+                                    <div class="flex items-center mt-2">
+                                        <span class="text-green-500 text-sm font-medium flex items-center">
+                                            <i class="fas fa-arrow-up text-xs mr-1"></i>
+                                            +2.4%
+                                        </span>
+                                        <span class="text-gray-400 text-xs ml-2">vs bulan lalu</span>
+                                    </div>
+                                </div>
+                                <div class="gradient-blue w-12 h-12 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-users text-white text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-1 bg-blue-600"></div>
+                    </div>
+                    
+                    <div class="card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg">
+                        <div class="px-6 py-5">
+                            <div class="flex items-center">
+                                <div class="flex-1">
+                                    <p class="text-gray-500 text-sm font-medium mb-1">Kelahiran</p>
+                                    <h3 class="text-3xl font-bold text-gray-800">113</h3>
+                                    <div class="flex items-center mt-2">
+                                        <span class="text-green-500 text-sm font-medium flex items-center">
+                                            <i class="fas fa-arrow-up text-xs mr-1"></i>
+                                            +5.7%
+                                        </span>
+                                        <span class="text-gray-400 text-xs ml-2">vs bulan lalu</span>
+                                    </div>
+                                </div>
+                                <div class="gradient-green w-12 h-12 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-baby text-white text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-1 bg-green-600"></div>
+                    </div>
+                    
+                    <div class="card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg">
+                        <div class="px-6 py-5">
+                            <div class="flex items-center">
+                                <div class="flex-1">
+                                    <p class="text-gray-500 text-sm font-medium mb-1">Tingkat Pendidikan</p>
+                                    <h3 class="text-2xl font-bold text-gray-800">
+                                        SMA/SMK
+                                        <span class="text-lg font-normal text-gray-500">dominan</span>
+                                    </h3>
+                                    <div class="flex items-center mt-2">
+                                        <span class="text-gray-500 text-sm font-medium">
+                                            29.9% dari total
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="gradient-purple w-12 h-12 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-graduation-cap text-white text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-1 bg-purple-600"></div>
+                    </div>
+                    
+                    <div class="card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg">
+                        <div class="px-6 py-5">
+                            <div class="flex items-center">
+                                <div class="flex-1">
+                                    <p class="text-gray-500 text-sm font-medium mb-1">Status Sinkronisasi</p>
+                                    <h3 class="text-xl font-bold text-green-600 flex items-center">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        Tersinkronisasi
+                                    </h3>
+                                    <div class="flex items-center mt-2">
+                                        <span class="text-gray-500 text-sm">
+                                            13 Mei 2025, 09:45
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="gradient-orange w-12 h-12 rounded-lg flex items-center justify-center pulse">
+                                    <i class="fas fa-desktop text-white text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-1 bg-orange-500"></div>
+                    </div>
+                </div>
+                
+                <!-- Charts Row 1 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Distribusi Penduduk Chart -->
+                    <div class="bg-white rounded-xl shadow-md p-5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Distribusi Penduduk per Desa</h3>
+                            <div class="dropdown">
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-content">
+                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-download mr-2 text-gray-500"></i> Download
+                                    </a>
+                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-expand mr-2 text-gray-500"></i> Perbesar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-80 relative">
+                            <div class="bar-chart">
+                                <div class="bar h-4/5">
+                                    <div class="bar-label">Sukamaju</div>
+                                </div>
+                                <div class="bar h-3/5">
+                                    <div class="bar-label">Harapan</div>
+                                </div>
+                                <div class="bar h-2/4">
+                                    <div class="bar-label">Makmur</div>
+                                </div>
+                                <div class="bar h-2/5">
+                                    <div class="bar-label">Sejahtera</div>
+                                </div>
+                                <div class="bar h-1/3">
+                                    <div class="bar-label">Damai</div>
+                                </div>
+                                <div class="bar h-1/4">
+                                    <div class="bar-label">Sentosa</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Kelompok Usia Chart -->
+                    <div class="bg-white rounded-xl shadow-md p-5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Distribusi Kelompok Usia</h3>
+                            <div class="dropdown">
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-content">
+                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-download mr-2 text-gray-500"></i> Download
+                                    </a>
+                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-expand mr-2 text-gray-500"></i> Perbesar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-80 flex flex-col items-center justify-center">
+                            <!-- Pie chart placeholder -->
+                            <div class="pie-chart">
+                                <div class="pie-center"></div>
+                            </div>
+                            <div class="pie-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #8b5cf6;"></div>
+                                    <span class="text-xs">0-5 Tahun</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #3b82f6;"></div>
+                                    <span class="text-xs">6-17 Tahun</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #10b981;"></div>
+                                    <span class="text-xs">18-25 Tahun</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #f59e0b;"></div>
+                                    <span class="text-xs">26-45 Tahun</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #ef4444;"></div>
+                                    <span class="text-xs">46-60 Tahun</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background-color: #6b7280;"></div>
+                                    <span class="text-xs">>60 Tahun</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts Row 2 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Tren Kelahiran Chart -->
+                    <div class="bg-white rounded-xl shadow-md p-5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Tren Kelahiran Bulanan</h3>
+                            <div class="flex items-center">
+                                <div class="mr-4">
+                                    <span class="inline-block w-3 h-3 bg-green-500 rounded-full mr-1"></span>
+                                    <span class="text-xs text-gray-600">Kelahiran</span>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="dropdown-content">
+                                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                            <i class="fas fa-download mr-2 text-gray-500"></i> Download
+                                        </a>
+                                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                            <i class="fas fa-expand mr-2 text-gray-500"></i> Perbesar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-80 relative">
+                            <!-- Line chart placeholder -->
+                            <div class="flex h-full items-end px-2">
+                                <div class="w-full h-3/4 flex items-end">
+                                    <div class="relative flex-1 h-1/5 mx-1 bg-green-500 hover:bg-green-600 transition-all rounded-t-sm">
+                                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">Jan</span>
+                                    </div>
+                                    <div class="relative flex-1 h-1/4 mx-1 bg-green-500 hover:bg-green-600 transition-all rounded-t-sm">
+                                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">Feb</span>
+                                    </div>
+                                    <div class="relative flex-1 h-2/5 mx-1 bg-green-500 hover:bg-green-600 transition-all rounded-t-sm">
+                                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">Mar</span>
+                                    </div>
+                                    <div class="relative flex-1 h-1/3 mx-1 bg-green-500 hover:bg-green-600 transition-all rounded-t-sm">
+                                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">Apr</span>
+                                    </div>
+                                    <div class="relative flex-1 h-3/5 mx-1 bg-green-500 hover:bg-green-600 transition-all rounded-t-sm">
+                                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">Mei</span>
+                                    </div>
+                                    <div class="relative flex-1 h-1/2 mx-1 bg-green-500 hover:bg-green-600 transition-all rounded-t-sm">
+                                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">Jun</span>
+                                    </div>
+                                    <div class="relative flex-1 h-2/3 mx-1 bg-green-500 hover:bg-green-600 transition-all rounded-t-sm">
+                                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">Jul</span>
+                                    </div>
+                                    <div class="relative flex-1 h-3/4 mx-1 bg-green-500 hover:bg-green-600 transition-all rounded-t-sm">
+                                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">Ags</span>
+                                    </div>
+                                    <div class="relative flex-1 h-4/5 mx-1 bg-green-500 hover:bg-green-600 transition-all rounded-t-sm">
+                                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">Sep</span>
+                                    </div>
+                                    <div class="relative flex-1 h-full mx-1 bg-green-500 hover:bg-green-600 transition-all rounded-t-sm">
+                                        <span class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">Okt</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tingkat Pendidikan Chart -->
+                    <div class="bg-white rounded-xl shadow-md p-5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Distribusi Tingkat Pendidikan</h3>
+                            <div class="dropdown">
+                                <button class="text-gray-400 hover:text-gray-600">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-content">
+                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-download mr-2 text-gray-500"></i> Download
+                                    </a>
+                                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-expand mr-2 text-gray-500"></i> Perbesar
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="h-80">
+                            <div class="flex flex-col h-full justify-center">
+                                <!-- Horizontal bar chart -->
+                                <div class="relative mb-4">
+                                    <div class="text-sm text-gray-700 mb-1">Tidak Sekolah</div>
+                                    <div class="w-1/6 h-6 bg-blue-100 rounded-r-full">
+                                        <div class="bg-blue-500 h-full rounded-l-full w-full"></div>
+                                    </div>
+                                    <div class="absolute right-0 top-0 text-sm text-gray-600 font-medium">10.2%</div>
+                                </div>
+                                <div class="relative mb-4">
+                                    <div class="text-sm text-gray-700 mb-1">SD/MI</div>
+                                    <div class="w-1/3 h-6 bg-blue-100 rounded-r-full">
+                                        <div class="bg-blue-500 h-full rounded-l-full w-full"></div>
+                                    </div>
+                                    <div class="absolute right-0 top-0 text-sm text-gray-600 font-medium">22.7%</div>
+                                </div>
+                                <div class="relative mb-4">
+                                    <div class="text-sm text-gray-700 mb-1">SMP/MTs</div>
+                                    <div class="w-1/4 h-6 bg-blue-100 rounded-r-full">
+                                        <div class="bg-blue-500 h-full rounded-l-full w-full"></div>
+                                    </div>
+                                    <div class="absolute right-0 top-0 text-sm text-gray-600 font-medium">17.5%</div>
+                                </div>
+                                <div class="relative mb-4">
+                                    <div class="text-sm text-gray-700 mb-1">SMA/SMK/MA</div>
+                                    <div class="w-2/5 h-6 bg-blue-100 rounded-r-full">
+                                        <div class="bg-blue-500 h-full rounded-l-full w-full"></div>
+                                    </div>
+                                    <div class="absolute right-0 top-0 text-sm text-gray-600 font-medium">29.9%</div>
+                                </div>
+                                <div class="relative mb-4">
+                                    <div class="text-sm text-gray-700 mb-1">Diploma</div>
+                                    <div class="w-1/6 h-6 bg-blue-100 rounded-r-full">
+                                        <div class="bg-blue-500 h-full rounded-l-full w-full"></div>
+                                    </div>
+                                    <div class="absolute right-0 top-0 text-sm text-gray-600 font-medium">9.8%</div>
+                                </div>
+                                <div class="relative">
+                                    <div class="text-sm text-gray-700 mb-1">Sarjana/Pascasarjana</div>
+                                    <div class="w-1/8 h-6 bg-blue-100 rounded-r-full">
+                                        <div class="bg-blue-500 h-full rounded-l-full w-full"></div>
+                                    </div>
+                                    <div class="absolute right-0 top-0 text-sm text-gray-600 font-medium">9.9%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Data Table -->
+                <div class="bg-white rounded-xl shadow-md p-5 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Daftar Penduduk Terkini</h3>
+                        <div class="flex space-x-2">
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" class="pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm" placeholder="Cari penduduk...">
+                            </div>
+                            <button class="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-plus mr-2"></i>
+                                <span>Tambah Data</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="table-header">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIK</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tempat, Tgl Lahir</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-blue-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3201234567890001</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Ahmad Suparman</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Jakarta, 15 April 1990</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Laki-laki</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Desa Sukamaju Rt.003/Rw.002</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="badge badge-green">Aktif</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                        <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-blue-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3201234567890002</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Siti Aminah</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Bandung, 22 Juni 1992</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Perempuan</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Desa Makmur Rt.001/Rw.004</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="badge badge-green">Aktif</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                        <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-blue-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3201234567890003</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Budi Santoso</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Semarang, 10 Agustus 1985</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Laki-laki</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Desa Harapan Rt.005/Rw.001</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="badge badge-blue">Pindah</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                        <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-blue-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3201234567890004</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Dewi Lestari</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Surabaya, 5 Maret 1998</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Perempuan</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Desa Sejahtera Rt.002/Rw.003</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="badge badge-green">Aktif</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                        <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-blue-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3201234567890005</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Hendra Gunawan</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Medan, 17 Januari 1980</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Laki-laki</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">Desa Damai Rt.004/Rw.005</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="badge badge-orange">Sementara</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                        <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-edit"></i></button>
+                                        <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="flex justify-between items-center pt-4 mt-4 border-t border-gray-200">
+                        <div class="text-sm text-gray-500">
+                            Menampilkan 5 dari 25,567 data
+                        </div>
+                        <div class="flex space-x-1">
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-50">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-50">4</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-50">5</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activities -->
+                <div class="bg-white rounded-xl shadow-md p-5">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800">Aktivitas Terkini</h3>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            Lihat Semua
+                        </a>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">
+                                    Penduduk baru ditambahkan
+                                    <span class="font-bold">Putri Indah Sari</span>
+                                </p>
+                                <div class="flex items-center mt-1">
+                                    <p class="text-xs text-gray-500">Desa Sukamaju</p>
+                                    <span class="mx-2 text-gray-300">•</span>
+                                    <p class="text-xs text-gray-500">12:45, 2 jam yang lalu</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                <i class="fas fa-baby"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">
+                                    Pencatatan kelahiran baru
+                                    <span class="font-bold">Bayi: Raffi Ahmad</span>
+                                </p>
+                                <div class="flex items-center mt-1">
+                                    <p class="text-xs text-gray-500">Desa Makmur</p>
+                                    <span class="mx-2 text-gray-300">•</span>
+                                    <p class="text-xs text-gray-500">09:30, 5 jam yang lalu</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">
+                                    Sinkronisasi data dengan DUKCAPIL berhasil
+                                </p>
+                                <div class="flex items-center mt-1">
+                                    <p class="text-xs text-gray-500">Sistem</p>
+                                    <span class="mx-2 text-gray-300">•</span>
+                                    <p class="text-xs text-gray-500">09:45, 5 jam yang lalu</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">
+                                    Pembaruan data penduduk
+                                    <span class="font-bold">Andi Wijaya</span>
+                                </p>
+                                <div class="flex items-center mt-1">
+                                    <p class="text-xs text-gray-500">Desa Sejahtera</p>
+                                    <span class="mx-2 text-gray-300">•</span>
+                                    <p class="text-xs text-gray-500">Kemarin, 16:20</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-900">
+                                    Pengumuman: Pembaruan sistem v2.5.3
+                                </p>
+                                <div class="flex items-center mt-1">
+                                    <p class="text-xs text-gray-500">Admin</p>
+                                    <span class="mx-2 text-gray-300">•</span>
+                                    <p class="text-xs text-gray-500">Kemarin, 10:15</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            
+            <!-- Footer -->
+            <footer class="bg-white p-4 border-t border-gray-200">
+                <div class="flex justify-between items-center">
+                    <p class="text-xs text-gray-500">
+                        © 2025 SIPENDESA - Sistem Informasi Penduduk Desa. Versi belum rilis
+                    </p>
+                    <div class="flex space-x-4 text-gray-400">
+                        <a href="#" class="text-xs hover:text-gray-600">Bantuan</a>
+                        <a href="#" class="text-xs hover:text-gray-600">Dokumentasi</a>
+                        <a href="#" class="text-xs hover:text-gray-600">Kontak</a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <script>
+        // Placeholder for future Javascript functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('SIPENDESA dashboard loaded successfully!');
+            
+            // Example function for handling notifications
+            function handleNotifications() {
+                const notifBell = document.querySelector('.fa-bell');
+                notifBell.addEventListener('click', function() {
+                    alert('Notifikasi: Anda memiliki 3 pemberitahuan baru!');
+                });
+            }
+            
+            // Example function for handling page navigation
+            function handleNavigation() {
+                const navItems = document.querySelectorAll('.sidebar-menu-item');
+                navItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        // Remove active class from all items
+                        navItems.forEach(i => i.classList.remove('active'));
+                        // Add active class to clicked item
+                        this.classList.add('active');
+                        
+                        // In a real app, we would handle page navigation here
+                        e.preventDefault();
+                        console.log('Navigating to:', this.textContent.trim());
+                    });
+                });
+            }
+            
+            // Initialize functions
+            handleNotifications();
+            handleNavigation();
+        });
+    </script>
+</body>
+</html>
